@@ -1,0 +1,40 @@
+dante:
+  server:
+    logoutput: syslog /var/log/danted
+    internal: eth0 port = 1080
+    external: eth0
+    socksmethod: none
+    clientmethod: none
+    user_privileged: proxy
+    user_notprivileged: nobody
+    user_libwrap: nobody
+    client_pass:
+      - {
+         from: xx.xx.xx.xxx/xx,
+         to: 0.0.0.0/0,
+         log: error connect disconnect
+        }
+      - {
+         from: xx.xx.xx.xx/xx,
+         to: 0.0.0.0/0,
+         log: error connect disconnect
+        }
+    client_block:
+      - {
+         from: 0.0.0.0/0,
+         to: 0.0.0.0/0,
+         log: connect error
+        }
+    socks_pass:
+      - { 
+         from: 0.0.0.0/0,
+         to: 0.0.0.0/0,
+         command: bind connect udpassociate,
+         log: error # connect disconnect iooperation
+        }
+      - {
+         from: 0.0.0.0/0,
+         to: 0.0.0.0/0,
+         command: bindreply udpreply,
+         log: error # connect disconnect iooperation
+        }

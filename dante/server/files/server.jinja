@@ -1,0 +1,37 @@
+# Managed by Salt
+
+logoutput: {{ config.logoutput }}
+
+internal: {{ config.internal }}
+external: {{ config.external }}
+
+socksmethod: {{ config.socksmethod }}
+clientmethod: {{ config.clientmethod }}
+
+user.privileged: {{ config.user_privileged }}
+user.notprivileged: {{ config.user_notprivileged }}
+user.libwrap: {{ config.user_libwrap }}
+
+{% for client_pass in config.client_pass %}
+client pass {
+        from: {{ client_pass.from }} to: {{ client_pass.to }}
+        log: {{ client_pass.log }}
+}
+{% endfor %}
+
+{% for client_block in config.client_block %}
+client block {
+        from: {{ client_block.from }} to: {{ client_block.to }}
+        log: {{ client_block.log }}
+}
+{% endfor %}
+
+
+{% for socks_pass in config.socks_pass %}
+socks pass {
+        from: {{ socks_pass.from }} to: {{ socks_pass.to }}
+        command: {{ socks_pass.command }}
+        log: {{ socks_pass.log }}
+}
+{% endfor %}
+
