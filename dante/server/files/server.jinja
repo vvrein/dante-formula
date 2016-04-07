@@ -35,3 +35,31 @@ socks pass {
 }
 {% endfor %}
 
+{%- if config.monitor is defined %}
+{% for monitor in config.monitor %}
+monitor {
+        from: {{ monitor.from }} to: {{ monitor.to }}
+        protocol: {{ monitor.protocol }}
+
+        {%- if monitor.internal_alarm_data_recv is defined %}
+        internal.alarm.data.recv: {{ monitor.internal_alarm_data_recv }}
+        {%- endif %}
+	{%- if monitor.internal_alarm_data_send is defined %}
+        internal.alarm.data.send: {{ monitor.internal_alarm_data_send }}
+        {%- endif %}
+        {%- if monitor.external_alarm_data_recv is defined %}
+        external.alarm.data.recv: {{ monitor.external_alarm_data_recv }}
+        {%- endif %}
+        {%- if monitor.external_alarm_data_send is defined %}
+        external.alarm.data.send: {{ monitor.external_alarm_data_send }}
+        {%- endif %}
+
+        {%- if monitor.internal_alarm_disconnect is defined %}
+        internal.alarm.disconnect: {{ monitor.internal_alarm_disconnect }}
+        {%- endif %}
+        {%- if monitor.external_alarm_disconnect is defined %}
+        external.alarm.disconnect: {{ monitor.external_alarm_disconnect }}
+        {%- endif %}
+}
+{% endfor %}
+{%- endif %}
