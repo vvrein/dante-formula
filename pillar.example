@@ -3,6 +3,15 @@ dante:
     logoutput: syslog /var/log/danted
     internal: eth0 port = 1080
     external: eth0
+# You can use multiple "external" keys:
+#   external:
+#     - eth0
+#     - eth1
+#     - 127.0.0.1
+# If you do, you'll probably need to define "external.rotation"; by default is
+# "none", which may not be what you want. See danted.conf(5) for more
+# information.
+#   external_rotation: route 
     socksmethod: none
     clientmethod: none
     user_privileged: proxy
