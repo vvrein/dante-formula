@@ -8,7 +8,16 @@ logoutput: {{ config.logoutput }}
 internal: {{ config.internal }}
 {%- endif %}
 {%- if config.external is defined %}
+{%-   if config.external is string %}
 external: {{ config.external }}
+{%-   else %}
+{%-     for ext in config.external %}
+external: {{ ext }}
+{%-     endfor %}
+{%-     if config.external_rotation is defined %}
+external.rotation: {{ config.external_rotation }}
+{%-     endif %}
+{%-   endif %}
 {%- endif %}
 
 {%- if config.socksmethod is defined %}
