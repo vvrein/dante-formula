@@ -1,56 +1,60 @@
 dante:
   server:
-    logoutput: syslog /var/log/danted
-    internal: eth0 port = 1080
-    external: eth0
-# You can use multiple "external" keys:
-#   external:
-#     - eth0
-#     - eth1
-#     - 127.0.0.1
-# If you do, you'll probably need to define "external.rotation"; by default is
-# "none", which may not be what you want. See danted.conf(5) for more
-# information.
+    logoutput: syslog stderr
+    internal: 
+      - host0 port = 1080
+    external: 
+      - host0
 #   external_rotation: route 
     socksmethod: none
     clientmethod: none
-    user_privileged: proxy
-    user_notprivileged: nobody
-    user_libwrap: nobody
-    client_pass:
-      - {
-         from: xx.xx.xx.xxx/xx,
-         to: 0.0.0.0/0,
-         log: error connect disconnect
-        }
-      - {
-         from: xx.xx.xx.xx/xx,
-         to: 0.0.0.0/0,
-         log: error connect disconnect
-        }
-    client_block:
-      - {
-         from: 0.0.0.0/0,
-         to: 0.0.0.0/0,
-         log: connect error
-        }
-    socks_pass:
-      - { 
-         from: 0.0.0.0/0,
-         to: 0.0.0.0/0,
-         command: bind connect udpassociate,
-         log: error # connect disconnect iooperation
-        }
-      - {
-         from: 0.0.0.0/0,
-         to: 0.0.0.0/0,
-         command: bindreply udpreply,
-         log: error # connect disconnect iooperation
-        }
-    monitor:
-      - {
-         from: 0.0.0.0/0,
-         to: 0.0.0.0/0,
-         protocol: tcp,
-         external_alarm_disconnect: 1/2 in 5
-        }
+    user_privileged: root # underscores will be replaced with dots (user_privileged => user.privileged)
+    user_unprivileged: nobody
+    timeout_negotiate: 30
+    timeout_io: 0
+
+    rules:
+      - client_pass: # underscores will be replaced with spaces
+          from: 10.0.0.0/8
+          to: 0.0.0.0/0
+          log: error connect disconnect
+
+      - client_pass: 
+          from: 192.168.0.0/16
+          to: 0.0.0.0/0
+          log: error connect disconnect
+
+      - client_block:
+          from: 0.0.0.0/0
+          to: 0.0.0.0/0
+          log: connect error
+
+      - socks_pass: 
+          from: 0.0.0.0/0
+          to: 1.2.3.4/32
+          command: bind connect udpassociate
+          log: error connect disconnect ioop
+
+      - socks_pass:
+          from: 0.0.0.0/0
+          to: 20.0.0.0/8
+          command: bindreply udpreply
+          log: error connect disconnect # ioop
+
+      - socks_block:
+          from: 0.0.0.0/0
+          to: 0.0.0.0/0
+          log: error connect #
+
+      #- monitor:
+      #    from: 0.0.0.0/0
+      #    to: 0.0.0.0/0
+      #    protocol: tcp
+      #    external_alarm_disconnect: 1/2 in 5 # underscores will be replaced with dots
+      #
+      #- route:
+      #    from: 10.0.0.0/8
+      #    to: 0.0.0.0/0
+      #    port: http
+      #    via: socks.example.net
+      #    via_port: socks

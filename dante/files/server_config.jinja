@@ -1,0 +1,33 @@
+# Managed by Salt
+
+logoutput: {{ config.get("logoutput","syslog stderr") }}
+{%- for internal in config.get("internal", []) %}
+internal: {{ internal }}
+{%- endfor %}
+{%- for external in config.get("external", []) %}
+external: {{ external }}
+{%- endfor %}
+{%- if config["external_rotation"] is defined %}
+external.rotation: {{ config["external_rotation"] }}
+{%- endif %}
+{% with %}
+  {%- for k, v in config.items() if k not in ["logoutput", "internal", "external", "external_rotation", "rules"] %}
+{{ k.replace("_", ".") }}: {{ v }}
+  {%- endfor %}
+{% endwith %}
+{%- for rule in config.get("rules", []) %}
+{%- set name, value = rule.popitem() %}
+{{ name.replace("_"," ") }} {
+        {%- set port = " port = " ~ value.pop("port") if value["port"] is defined else "" %}
+        {%- if name.startswith("client") %}
+        {{ "from: " ~ value.pop("from","0.0.0.0/0") ~  port ~ " to: " ~ value.pop("to", "0.0.0.0/0") }}
+        {%- elif name.startswith("socks") or name.startswith("monitor") %}
+        {{ "from: " ~ value.pop("from","0.0.0.0/0") ~ " to: " ~ value.pop("to", "0.0.0.0/0")  ~ port }}
+        {%- elif name.startswith("route") %}
+        {{ "from: " ~ value.pop("from","0.0.0.0/0") ~ " to: " ~ value.pop("to", "0.0.0.0/0")  ~ port ~ " via: " ~ value.pop("via") ~ " port = " ~ value.pop("via_port") }}
+        {%- endif %}
+        {%- for k, v in value.items() %}
+        {{ k.replace("_", ".") }}: {{ v }}
+        {%- endfor %}
+}
+{%- endfor %}
